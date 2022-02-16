@@ -305,6 +305,8 @@ non-sealed class EventNodeImpl<T extends Event> implements EventNode<T> {
     }
 
     static final class Handle<E extends Event> implements ListenerHandle<E> {
+        // Represents the filters where the handler has a node
+        private static final List<EventFilter<?, ?>> HANDLER_FILTERS = List.of(EventFilter.ENTITY);
         private static final VarHandle UPDATED;
 
         static {
@@ -321,13 +323,35 @@ non-sealed class EventNodeImpl<T extends Event> implements EventNode<T> {
         @SuppressWarnings("unused")
         private boolean updated; // Use the UPDATED var handle
 
+        // Local nodes handling
+        private final List<EventFilter<E, EventHandler<? super E>>> localFilters;
+
         Handle(EventNodeImpl<E> node, Class<E> eventType) {
             this.node = node;
             this.eventType = eventType;
+
+            // Filters with EventHandler support
+            if (node instanceof GlobalEventHandler) {
+                //noinspection unchecked
+                this.localFilters = List.class.cast(HANDLER_FILTERS.stream()
+                        .filter(filter -> filter.eventType().isAssignableFrom(eventType)).toList());
+            } else {
+                this.localFilters = List.of();
+            }
         }
 
         @Override
         public void call(@NotNull E event) {
+            // Per-handler listeners
+            if (!localFilters.isEmpty()) {
+                for (var filter : localFilters) {
+                    var handle = filter.getHandler(event);
+                    if (handle != null) {
+                        handle.eventNode().call(event);
+                    }
+                }
+            }
+            // Global listeners
             final Consumer<E> listener = updatedListener();
             if (listener == null) return;
             try {
