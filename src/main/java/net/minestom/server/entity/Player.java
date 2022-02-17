@@ -119,7 +119,7 @@ public class Player extends LivingEntity implements CommandSender, Localizable, 
 
     private DimensionType dimensionType;
     private GameMode gameMode;
-    public static Inventory enderChest = new Inventory(InventoryType.CHEST_3_ROW, "Ender Chest");
+    public static Inventory enderChest;
     final IntegerBiConsumer chunkAdder = (chunkX, chunkZ) -> {
         // Load new chunks
         this.instance.loadOptionalChunk(chunkX, chunkZ).thenAccept(chunk -> {
@@ -225,6 +225,7 @@ public class Player extends LivingEntity implements CommandSender, Localizable, 
                 .withDynamic(Identity.NAME, this::getUsername)
                 .withDynamic(Identity.DISPLAY_NAME, this::getDisplayName)
                 .build();
+        this.enderChest = new Inventory(InventoryType.CHEST_3_ROW, "Ender Chest");
     }
 
     /**
