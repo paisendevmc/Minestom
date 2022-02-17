@@ -41,6 +41,7 @@ import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.EntityTracker;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.inventory.Inventory;
+import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.inventory.PlayerInventory;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
@@ -118,6 +119,7 @@ public class Player extends LivingEntity implements CommandSender, Localizable, 
 
     private DimensionType dimensionType;
     private GameMode gameMode;
+    public static Inventory enderChest = new Inventory(InventoryType.CHEST_3_ROW, "Ender Chest");
     final IntegerBiConsumer chunkAdder = (chunkX, chunkZ) -> {
         // Load new chunks
         this.instance.loadOptionalChunk(chunkX, chunkZ).thenAccept(chunk -> {
